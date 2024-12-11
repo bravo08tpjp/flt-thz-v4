@@ -28,6 +28,7 @@ line.Parent = Frame
 line.BackgroundColor3 = Color3.new(1, 0, 0) -- Inicialmente vermelho
 line.Size = UDim2.new(1, 0, 0.02, 0) -- Altura da linha
 line.Position = UDim2.new(0, 0, 0.98, 0) -- Posição na parte inferior do Frame
+line.ZIndex = 2 -- Garante que fique acima de outros elementos visuais
 
 -- Loop para alternar cores
 spawn(function()
@@ -37,6 +38,37 @@ spawn(function()
             wait(0.05)
         end
     end
+end)
+
+-- Ajustar visibilidade ao minimizar e expandir
+mini.MouseButton1Click:Connect(function()
+    -- Minimizar
+    up.Visible = false
+    down.Visible = false
+    onof.Visible = false
+    plus.Visible = false
+    speed.Visible = false
+    mine.Visible = false
+    mini.Visible = false
+    mini2.Visible = true
+    main.Frame.BackgroundTransparency = 1
+    closebutton.Position = UDim2.new(0, 0, -1, 57)
+    line.Visible = false -- Esconder a linha ao minimizar
+end)
+
+mini2.MouseButton1Click:Connect(function()
+    -- Expandir
+    up.Visible = true
+    down.Visible = true
+    onof.Visible = true
+    plus.Visible = true
+    speed.Visible = true
+    mine.Visible = true
+    mini.Visible = true
+    mini2.Visible = false
+    main.Frame.BackgroundTransparency = 0
+    closebutton.Position = UDim2.new(0, 0, -1, 27)
+    line.Visible = true -- Mostrar a linha ao expandir
 end)
 
 up.Name = "up"
