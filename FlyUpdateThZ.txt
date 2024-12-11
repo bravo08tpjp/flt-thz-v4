@@ -22,7 +22,7 @@ Frame.BorderColor3 = Color3.fromRGB(255, 255, 255)
 Frame.Position = UDim2.new(0.100320168, 0, 0.379746825, 0)
 Frame.Size = UDim2.new(0, 190, 0, 57)
 
--- Adicionar a linha RGB
+-- Adicionar a linha RGB inferior
 local line = Instance.new("Frame")
 line.Parent = Frame
 line.BackgroundColor3 = Color3.new(1, 0, 0) -- Inicialmente vermelho
@@ -30,7 +30,7 @@ line.Size = UDim2.new(1, 0, 0.02, 0) -- Altura da linha
 line.Position = UDim2.new(0, 0, 0.98, 0) -- Posição na parte inferior do Frame
 line.ZIndex = 2 -- Garante que fique acima de outros elementos visuais
 
--- Loop para alternar cores
+-- Loop para alternar cores da linha inferior (RGB)
 spawn(function()
     while true do
         for hue = 0, 1, 0.01 do
@@ -40,7 +40,29 @@ spawn(function()
     end
 end)
 
--- Ajustar visibilidade ao minimizar e expandir
+-- Adicionar a linha RGB no lado (curvando com a linha de baixo)
+local lineSide = Instance.new("Frame")
+lineSide.Parent = Frame
+lineSide.BackgroundColor3 = Color3.new(1, 0, 0) -- Cor inicial (vermelho)
+lineSide.Size = UDim2.new(0.02, 0, 1, 0) -- Largura e altura da linha lateral
+lineSide.Position = UDim2.new(0.98, 0, 0, 0) -- Posição no lado direito
+
+-- Adicionar a curva ao lado
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 10)  -- Defina o raio da curva conforme necessário
+corner.Parent = lineSide
+
+-- Loop para alternar cores na linha lateral (RGB)
+spawn(function()
+    while true do
+        for hue = 0, 1, 0.01 do
+            lineSide.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
+            wait(0.05)
+        end
+    end
+end)
+
+-- Ajustar visibilidade das linhas ao minimizar e expandir
 mini.MouseButton1Click:Connect(function()
     -- Minimizar
     up.Visible = false
@@ -53,7 +75,8 @@ mini.MouseButton1Click:Connect(function()
     mini2.Visible = true
     main.Frame.BackgroundTransparency = 1
     closebutton.Position = UDim2.new(0, 0, -1, 57)
-    line.Visible = false -- Esconder a linha ao minimizar
+    line.Visible = false -- Esconder a linha inferior ao minimizar
+    lineSide.Visible = false -- Esconder a linha lateral ao minimizar
 end)
 
 mini2.MouseButton1Click:Connect(function()
@@ -68,7 +91,8 @@ mini2.MouseButton1Click:Connect(function()
     mini2.Visible = false
     main.Frame.BackgroundTransparency = 0
     closebutton.Position = UDim2.new(0, 0, -1, 27)
-    line.Visible = true -- Mostrar a linha ao expandir
+    line.Visible = true -- Mostrar a linha inferior ao expandir
+    lineSide.Visible = true -- Mostrar a linha lateral ao expandir
 end)
 
 up.Name = "up"
@@ -113,12 +137,11 @@ TextLabel.TextWrapped = true
 
 plus.Name = "plus"
 plus.Parent = Frame
-plus.BackgroundColor3 = Color3.fromRGB(54, 54, 54)
-plus.Position = UDim2.new(0.231578946, 0, 0, 0)
-plus.Size = UDim2.new(0, 45, 0, 28)
+plus.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- Fundo branco
+plus.TextColor3 = Color3.fromRGB(0, 0, 0) -- Texto preto
+plus.Text = "+" -- Texto
+plus.TextSize = 14
 plus.Font = Enum.Font.SourceSans
-plus.Text = "+"
-plus.TextColor3 = Color3.fromRGB(255, 255, 255)
 plus.TextScaled = true
 plus.TextSize = 14.000
 plus.TextWrapped = true
