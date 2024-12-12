@@ -1,7 +1,7 @@
 local Sound = Instance.new("Sound", game:GetService("SoundService"));
 Sound.SoundId = "rbxassetid://232127604";
 Sound:Play();
-local args1 = {[1] = "RolePlayName", [2] = "Gui Slowed"};
+local args1 = {[1] = "RolePlayName", [2] = "Nebula System Hub"};
 game:GetService("ReplicatedStorage").RE:FindFirstChild(
     "1RPNam1eTex1t"):FireServer(unpack(args1));
 local args = {
@@ -49,7 +49,7 @@ local TT = Window:MakeTab({
 });
 local utilitiesTab = Window:MakeTab({
     Name = "Configurações",
-    Icon = "rbxassetid://140270687691975",
+    Icon = "rbxassetid://17642264140",
     PremiumOnly = false
 });
 local Section = CRD:AddSection({Name = "👨‍💻 Criador 👨‍💻"});
