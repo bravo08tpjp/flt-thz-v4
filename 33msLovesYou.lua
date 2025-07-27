@@ -1,5 +1,3 @@
-
-
 local Libary = loadstring(game:HttpGet("https://raw.githubusercontent.com/tbao143/Library-ui/refs/heads/main/Redzhubui"))()
 workspace.FallenPartsDestroyHeight = -math.huge
 
