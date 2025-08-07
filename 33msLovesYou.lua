@@ -4203,29 +4203,36 @@ pcall(function()
 end)
 
 TrollTab:AddButton({
-    Name = "Auto Unban (me desbanir de casas)",
+    Name = "Auto Unban (de todas as casas)",
     Callback = function()
-        local Houses = workspace:FindFirstChild("001_Lots")
         local Player = game.Players.LocalPlayer
+        local Houses = workspace:FindFirstChild("001_Lots")
 
         if not Houses then
             warn("Não foi possível localizar as casas!")
             return
         end
 
-        for _, house in pairs(Houses:GetChildren()) do
-            if house:IsA("Model") and house.Name:find("House") and house.Name ~= Player.Name .. "House" then
-                local args = {
-                    [1] = "UnbanPlayerFromHouse",
-                    [2] = Player,
-                    [3] = Player.Character or Player.CharacterAdded:Wait()
-                }
+        local totalTentativas = 0
+        local sucesso = 0
 
-                game:GetService("ReplicatedStorage").RE:FindFirstChild("1Playe1rTrigge1rEven1t"):FireServer(unpack(args))
+        for _, casa in pairs(Houses:GetChildren()) do
+            for _, obj in pairs(casa:GetDescendants()) do
+                if obj:IsA("NumberValue") and obj.Name == "Number" and obj.Value >= 1 and obj.Value <= 30 then
+                    local args = {
+                        [1] = "UnbanPlayerFromHouse",
+                        [2] = Player,
+                        [3] = Player.Character or Player.CharacterAdded:Wait()
+                    }
+
+                    game:GetService("ReplicatedStorage").RE:FindFirstChild("1Playe1rTrigge1rEven1t"):FireServer(unpack(args))
+                    totalTentativas += 1
+                    task.wait(0.1)
+                end
             end
         end
 
-        print("Auto Unban finalizado.")
+        print("✅ Auto Unban executado. Tentativas: " .. totalTentativas)
     end
 })
 
