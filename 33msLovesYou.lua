@@ -4202,6 +4202,33 @@ pcall(function()
     })
 end)
 
+TrollTab:AddButton({
+    Name = "Auto Unban (me desbanir de casas)",
+    Callback = function()
+        local Houses = workspace:FindFirstChild("001_Lots")
+        local Player = game.Players.LocalPlayer
+
+        if not Houses then
+            warn("Não foi possível localizar as casas!")
+            return
+        end
+
+        for _, house in pairs(Houses:GetChildren()) do
+            if house:IsA("Model") and house.Name:find("House") and house.Name ~= Player.Name .. "House" then
+                local args = {
+                    [1] = "UnbanPlayerFromHouse",
+                    [2] = Player,
+                    [3] = Player.Character or Player.CharacterAdded:Wait()
+                }
+
+                game:GetService("ReplicatedStorage").RE:FindFirstChild("1Playe1rTrigge1rEven1t"):FireServer(unpack(args))
+            end
+        end
+
+        print("Auto Unban finalizado.")
+    end
+})
+
 -- Label após Auto Unban
 pcall(function()
     HouseTab:AddLabel("Te desbane automaticamente das Casas")
