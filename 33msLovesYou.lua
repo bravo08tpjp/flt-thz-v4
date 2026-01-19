@@ -4202,6 +4202,39 @@ pcall(function()
     })
 end)
 
+HouseTab:AddButton({
+    Name = "Remover ban de todas as Casas",
+    Callback = function()
+        local Player = game.Players.LocalPlayer
+        local Houses = workspace:FindFirstChild("001_Lots")
+
+        if not Houses then
+            warn("[❌] 001_Lots não encontrado")
+            return
+        end
+
+        local total = 0
+
+        for _, casa in pairs(Houses:GetChildren()) do
+            if casa:IsA("Model") and casa.Name:match("House$") then
+                local args = {
+                    [1] = "UnbanPlayerFromHouse",
+                    [2] = Player,
+                    [3] = casa
+                }
+
+                game:GetService("ReplicatedStorage")
+                    .RE:FindFirstChild("1Playe1rTrigge1rEven1t")
+                    :FireServer(unpack(args))
+
+                total += 1
+                task.wait(0.12)
+            end
+        end
+
+        print("✅ Desbanido de " .. total .. " casas")
+    end
+})
 
 TrollTab:AddButton({
     Name = "Auto Unban (me desbanir de todas as casas)",
