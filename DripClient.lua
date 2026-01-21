@@ -10424,7 +10424,9 @@ Tabs.Carros:AddButton({
 end
 do
 Tabs.Carros:AddSection({Translator:traduzir("Musica No Carro (Game Pass)")})
-local selectedMusic = ""
+
+local selectedMusicId = nil
+local selectedFromList = false
 
 local MusicsList = {
 	{ Name = "confession", Id = 92992163303925 },
@@ -10559,7 +10561,24 @@ Tabs.Carros:AddTextBox({
 	Callback = function(value)
 		local parsed = tonumber(value)
 		if parsed then
-			selectedMusic = parsed
+			selectedMusicId = parsed
+			selectedFromList = false
+
+			-- TOCAR AUTOMATICAMENTE
+			local eventos = {
+				"PickingVehicleMusicText",
+				"PickingCarMusicText",
+				"PickingScooterMusicText",
+				"PickHouseMusicText",
+				"ToolMusicText"
+			}
+
+			for _, evento in ipairs(eventos) do
+				local remote = game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r")
+				if remote then
+					remote:FireServer(evento, selectedMusicId)
+				end
+			end
 		end
 	end
 })
@@ -10570,13 +10589,16 @@ local Dropdown = Tabs.Carros:AddDropdown({
 	Options = Musics,
 	Default = "Musica",
 	Callback = function(Value)
-		selectedMusic = Value
+		selectedMusicId = MusicIds[Value]
+		selectedFromList = true
 	end
 })
 
-Tabs.Carros:AddButton({Translator:traduzir("Tocar Música"), function()
-	local musicId = MusicIds[selectedMusic]
-	if musicId then
+Tabs.Carros:AddButton({
+	Translator:traduzir("Tocar Música"),
+	function()
+		if not selectedFromList or not selectedMusicId then return end
+
 		local eventos = {
 			"PickingVehicleMusicText",
 			"PickingCarMusicText",
@@ -10584,14 +10606,15 @@ Tabs.Carros:AddButton({Translator:traduzir("Tocar Música"), function()
 			"PickHouseMusicText",
 			"ToolMusicText"
 		}
+
 		for _, evento in ipairs(eventos) do
 			local remote = game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r")
 			if remote then
-				remote:FireServer(evento, musicId)
+				remote:FireServer(evento, selectedMusicId)
 			end
 		end
 	end
-end})
+})
 
 Tabs.Carros:AddButton({Translator:traduzir("Para Música"), function()
 	local args = {
