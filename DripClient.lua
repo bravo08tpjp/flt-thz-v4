@@ -9340,7 +9340,8 @@ Toggle:Callback(function(Value)
 end)
 
 Tabs.AD:AddSection({Translator:traduzir("Música no Rádio <Game Pass>")})
-local selectedMusicDrip = ""
+local selectedMusicDrip = nil
+local selectedFromListDrip = false
 
 local MusicsListDrip = {
 	{ Name = "confession", Id = 92992163303925 },
@@ -9420,26 +9421,59 @@ for _, music in ipairs(MusicsListDrip) do
 	end
 end
 
+Tabs.AD:AddTextBox({
+	Name = Translator:traduzir("Insira o ID da Música"),
+	Description = Translator:traduzir("Cole o ID e aperte Enter para tocar no rádio"),
+	PlaceholderText = "Ex: 74366765967475",
+	Callback = function(value)
+		local parsed = tonumber(value)
+		if parsed then
+			selectedMusicDrip = parsed
+			selectedFromListDrip = false
+
+			-- TOCA AUTOMATICAMENTE NO RÁDIO
+			local args = {
+				[1] = "ToolMusicText",
+				[2] = tostring(parsed),
+				[4] = true
+			}
+
+			game:GetService("ReplicatedStorage")
+				:WaitForChild("RE", 9e9)
+				:WaitForChild("PlayerToolEvent", 9e9)
+				:FireServer(unpack(args))
+		end
+	end
+})
+
 local Dropdown = Tabs.AD:AddDropdown({
 	Name = Translator:traduzir("Selecionar Música"),
 	Description = Translator:traduzir("Toca no rádio via ToolMusicText"),
 	Options = DripRadio,
 	Default = "Escolha uma música",
 	Callback = function(Value)
-		selectedMusicDrip = Value
+		selectedMusicDrip = MusicIds[Value]
+		selectedFromListDrip = true
 	end
 })
 
-Tabs.AD:AddButton({Translator:traduzir("Tocar Música no Rádio <FM>"), function()
-	local musicId = MusicIds[selectedMusicDrip]
-	if musicId then
+Tabs.AD:AddButton({
+	Translator:traduzir("Tocar Música no Rádio <FM>"),
+	function()
+		if not selectedFromListDrip or not selectedMusicDrip then return end
+
 		local args = {
 			[1] = "ToolMusicText",
-			[2] = tostring(musicId)
+			[2] = tostring(selectedMusicDrip),
+			[4] = true
 		}
-		game:GetService("ReplicatedStorage"):WaitForChild("RE", 9e9):WaitForChild("PlayerToolEvent", 9e9):FireServer(unpack(args))
+
+		game:GetService("ReplicatedStorage")
+			:WaitForChild("RE", 9e9)
+			:WaitForChild("PlayerToolEvent", 9e9)
+			:FireServer(unpack(args))
 	end
-end })
+})
 
 Tabs.AD:AddButton({Translator:traduzir("Pegar Rádio <FM>"), function()
 	local args = {
