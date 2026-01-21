@@ -213,6 +213,16 @@ local function links()
     setclipboard("")
 end
 
+local function removerBanCasas()
+	for _, v in pairs(workspace:GetDescendants()) do
+		if v.Name == "BanDoor"
+		or v.Name == "BanBarrier"
+		or (v:IsA("BasePart") and v.Name:lower():find("ban")) then
+			v:Destroy()
+		end
+	end
+end
+
 local gameName = "Unknown Game"
 
 local success, gameInfo = pcall(function()
@@ -9969,6 +9979,49 @@ Tabs.AVT:AddButton({
 end
 -----------------///////TABS - HouseTab///////-----------------
 do
+Tabs.HouseTab:AddSection({Translator:traduzir("Remover Ban Das Casas")})
+
+Tabs.Casas:AddButton({
+	Name = "Remover Ban das Casas",
+	Callback = function()
+		removerBanCasas()
+	end
+})
+
+local autoUnbanCasas = false
+
+Tabs.Casas:AddToggle({
+	Name = "Remover Ban Automaticamente",
+	Default = false,
+	Callback = function(state)
+		autoUnbanCasas = state
+	end
+})
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local function onCharacter(char)
+	local humanoid = char:WaitForChild("Humanoid", 10)
+	if not humanoid then return end
+
+	humanoid.Died:Connect(function()
+		if autoUnbanCasas then
+			task.wait(0.5) -- espera respawn iniciar
+			pcall(removerBanCasas)
+		end
+	end)
+end
+
+-- primeira vez
+if player.Character then
+	onCharacter(player.Character)
+end
+
+-- quando respawnar
+player.CharacterAdded:Connect(onCharacter)
+
+
 Tabs.HouseTab:AddSection({Translator:traduzir("Música na Casa (Game Pass)")})
 local selectedMusic = ""
 local MusicsList = {
