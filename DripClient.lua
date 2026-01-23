@@ -9968,7 +9968,6 @@ Tabs.AVT:AddButton({
 })
 end
 -----------------///////TABS - HouseTab///////-----------------
-do
 Tabs.HouseTab:AddSection({Translator:traduzir("Remover Ban Das Casas")})
 
 local function removerBanCasas()
