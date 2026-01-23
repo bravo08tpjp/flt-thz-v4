@@ -9969,8 +9969,7 @@ Tabs.AVT:AddButton({
 end
 -----------------///////TABS - HouseTab///////-----------------
 do
-
-Tabs.HouseTab:AddSection({Translator:traduzir("Música na Casa (Game Pass)")})
+Tabs.HouseTab:AddSection({Translator:traduzir("Remover Ban Das Casas")})
 
 local function removerBanCasas()
 	-- Remove BannedBlock numerados (1 a 37)
@@ -10028,6 +10027,9 @@ if player.Character then
 end
 
 player.CharacterAdded:Connect(onCharacter)
+
+do
+Tabs.HouseTab:AddSection({Translator:traduzir("Música na Casa (Game Pass)")})
 
 local selectedMusic = ""
 local MusicsList = {
@@ -10521,6 +10523,31 @@ Tabs.Carros:AddSection({Translator:traduzir("Musica No Carro (Game Pass)")})
 local selectedMusicId = nil
 local selectedFromList = false
 
+local function tocarMusica(id)
+	local RS = game:GetService("ReplicatedStorage")
+	local RE = RS:WaitForChild("RE")
+
+	-- Rádio / Tool
+	pcall(function()
+		RE:WaitForChild("PlayerToolEvent"):FireServer("ToolMusicText", id)
+	end)
+
+	-- Casa
+	pcall(function()
+		RE:WaitForChild("1Player1sHous1e"):FireServer("PickHouseMusicText", id)
+	end)
+
+	-- Carro
+	pcall(function()
+		RE:WaitForChild("1Player1sCa1r"):FireServer("PickingCarMusicText", id)
+	end)
+
+	-- Scooter
+	pcall(function()
+		RE:WaitForChild("1NoMoto1rVehicle1s"):FireServer("PickingScooterMusicText", id)
+	end)
+end
+
 local MusicsList = {
 	{ Name = "confession", Id = 92992163303925 },
     { Name = "Pac Man Phonk", Id = 120889371113999 },
@@ -10649,73 +10676,45 @@ end
 
 Tabs.Carros:AddTextBox({
 	Name = Translator:traduzir("Insira o ID da Música"),
-	Description = Translator:traduzir("Você pode colar o ID direto aqui"),
+	Description = Translator:traduzir("Cole o ID e pressione Enter"),
 	PlaceholderText = "Ex: 74366765967475",
 	Callback = function(value)
-		local parsed = tonumber(value)
-		if parsed then
-			selectedMusicId = parsed
+		local id = tonumber(value)
+		if id then
+			selectedMusicId = id
 			selectedFromList = false
-
-			-- TOCAR AUTOMATICAMENTE
-			local eventos = {
-				"PickingVehicleMusicText",
-				"PickingCarMusicText",
-				"PickingScooterMusicText",
-				"PickHouseMusicText",
-				"ToolMusicText"
-			}
-
-			for _, evento in ipairs(eventos) do
-				local remote = game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r")
-				if remote then
-					remote:FireServer(evento, selectedMusicId)
-				end
-			end
+			tocarMusica(id)
 		end
 	end
 })
 
 local Dropdown = Tabs.Carros:AddDropdown({
 	Name = Translator:traduzir("Selecionar Música"),
-	Description = Translator:traduzir("funciona apenas com game pass"),
+	Description = Translator:traduzir("Funciona com Game Pass"),
 	Options = Musics,
 	Default = "Musica",
 	Callback = function(Value)
 		selectedMusicId = MusicIds[Value]
 		selectedFromList = true
+		tocarMusica(selectedMusicId)
 	end
 })
 
 Tabs.Carros:AddButton({
 	Translator:traduzir("Tocar Música"),
 	function()
-		if not selectedFromList or not selectedMusicId then return end
-
-		local eventos = {
-			"PickingVehicleMusicText",
-			"PickingCarMusicText",
-			"PickingScooterMusicText",
-			"PickHouseMusicText",
-			"ToolMusicText"
-		}
-
-		for _, evento in ipairs(eventos) do
-			local remote = game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r")
-			if remote then
-				remote:FireServer(evento, selectedMusicId)
-			end
+		if selectedMusicId then
+			tocarMusica(selectedMusicId)
 		end
 	end
 })
 
-Tabs.Carros:AddButton({Translator:traduzir("Para Música"), function()
-	local args = {
-		[1] = "StopMusic",
-		[2] = 73423225643184
-	}
-	game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r"):FireServer(unpack(args))
-end})
+Tabs.Carros:AddButton({
+	Translator:traduzir("Parar Música"),
+	function()
+		tocarMusica("")
+	end
+})
 
 local isColorChanging = false
 local colorChangeCoroutine = nil
