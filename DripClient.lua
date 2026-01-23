@@ -10026,7 +10026,7 @@ if player.Character then
 	onCharacter(player.Character)
 end
 
-player.CharacterAdded:Connect(onCharacter)
+player.CharacterAdded:Connect(onCharacter))
 
 Tabs.HouseTab:AddSection({Translator:traduzir("Música na Casa (Game Pass)")})
 
