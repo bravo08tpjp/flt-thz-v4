@@ -9969,6 +9969,66 @@ Tabs.AVT:AddButton({
 end
 -----------------///////TABS - HouseTab///////-----------------
 do
+Tabs.HouseTab:AddSection({Translator:traduzir("Remover Ban Das Casas")})
+
+local function removerBanCasas()
+	-- Remove BannedBlock numerados (1 a 37)
+	for i = 1, 37 do
+		local bannedBlock = workspace:FindFirstChild("BannedBlock" .. i, true)
+		if bannedBlock then
+			pcall(function()
+				bannedBlock:Destroy()
+			end)
+		end
+	end
+	-- Remove qualquer outro BannedBlock restante
+	for _, v in pairs(workspace:GetDescendants()) do
+		if v.Name:match("^BannedBlock") then
+			pcall(function()
+				v:Destroy()
+			end)
+		end
+	end
+end
+
+Tabs.HouseTab:AddButton({
+	Name = "Remover Ban das Casas",
+	Callback = function()
+		removerBanCasas()
+	end
+})
+
+local autoUnbanCasas = false
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+Tabs.HouseTab:AddToggle({
+	Name = "Remover Ban Automaticamente",
+	Default = false,
+	Callback = function(state)
+		autoUnbanCasas = state
+	end
+})
+
+local function onCharacter(char)
+	local humanoid = char:WaitForChild("Humanoid", 10)
+	if not humanoid then return end
+
+	humanoid.Died:Connect(function()
+		if autoUnbanCasas then
+			task.wait(1)
+			pcall(removerBanCasas)
+		end
+	end)
+end
+
+if player.Character then
+	onCharacter(player.Character)
+end
+
+player.CharacterAdded:Connect(onCharacter)
+
+do
 Tabs.HouseTab:AddSection({Translator:traduzir("Música na Casa (Game Pass)")})
 local selectedMusic = ""
 local MusicsList = {
@@ -10035,53 +10095,6 @@ Tabs.HouseTab:AddButton({Translator:traduzir("Parar Música"), function()
 	end
 end})
 end
-
-local function removerBanCasas()
-	for _, v in pairs(workspace:GetDescendants()) do
-		if v.Name == "BanDoor"
-		or v.Name == "BanBarrier"
-		or (v:IsA("BasePart") and v.Name:lower():find("ban")) then
-			v:Destroy()
-		end
-	end
-end
-
-local autoUnbanCasas = false
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-
-Tabs.HouseTab:AddButton({
-	Name = "Remover Ban das Casas",
-	Callback = function()
-		removerBanCasas()
-	end
-})
-
-Tabs.HouseTab:AddToggle({
-	Name = "Remover Ban Automaticamente",
-	Default = false,
-	Callback = function(state)
-		autoUnbanCasas = state
-	end
-})
-
-local function onCharacter(char)
-	local humanoid = char:WaitForChild("Humanoid", 10)
-	if not humanoid then return end
-
-	humanoid.Died:Connect(function()
-		if autoUnbanCasas then
-			task.wait(1)
-			pcall(removerBanCasas)
-		end
-	end)
-end
-
-if player.Character then
-	onCharacter(player.Character)
-end
-
-player.CharacterAdded:Connect(onCharacter)
 
 do
 local function updateHouseList()
