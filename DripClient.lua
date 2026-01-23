@@ -10026,8 +10026,9 @@ if player.Character then
 	onCharacter(player.Character)
 end
 
-player.CharacterAdded:Connect(onCharacter))
+player.CharacterAdded:Connect(onCharacter)
 
+do
 Tabs.HouseTab:AddSection({Translator:traduzir("Música na Casa (Game Pass)")})
 
 local selectedMusic = ""
