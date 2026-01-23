@@ -9969,7 +9969,8 @@ Tabs.AVT:AddButton({
 end
 -----------------///////TABS - HouseTab///////-----------------
 do
-Tabs.HouseTab:AddSection({Translator:traduzir("Remover Ban Das Casas")})
+
+Tabs.HouseTab:AddSection({Translator:traduzir("Música na Casa (Game Pass)")})
 
 local function removerBanCasas()
 	-- Remove BannedBlock numerados (1 a 37)
@@ -10028,8 +10029,6 @@ end
 
 player.CharacterAdded:Connect(onCharacter)
 
-do
-Tabs.HouseTab:AddSection({Translator:traduzir("Música na Casa (Game Pass)")})
 local selectedMusic = ""
 local MusicsList = {
 	{ Name = "Leaked by WxDeveloper", Id =  10561310081763},
