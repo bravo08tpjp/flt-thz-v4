@@ -3123,15 +3123,20 @@ Tabs.TT:AddToggle({
     Description = Translator:traduzir("Acompanha o jogador com a câmera"),
     Default = false,
     Callback = function(value)
-                local function UpdateCamera()
-            local targetPlayer = value and Players:FindFirstChild(selectedPlayer)
-            local subject = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
-            
-            if targetPlayer and targetPlayer.Character then
+
+        local function UpdateCamera()
+            local subject
+            local targetPlayer = selectedPlayer
+
+            if value and targetPlayer and targetPlayer.Character then
                 subject = targetPlayer.Character:FindFirstChild("Humanoid")
+            else
+                subject = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
             end
-            
-            if subject then Camera.CameraSubject = subject end
+
+            if subject then
+                Camera.CameraSubject = subject
+            end
         end
 
         if value then
@@ -3147,7 +3152,7 @@ Tabs.TT:AddToggle({
         end
     end
 })
-
+	
 Tabs.TT:AddButton({
     Name = Translator:traduzir("Atualizar Lista"),
     Callback = function()
@@ -3174,6 +3179,25 @@ local function ResetDoors()
     end
   end
 end
+
+Tabs.TT:AddButton({
+    Name = Translator:traduzir("Teleportar ao Jogador"),
+    Description = Translator:traduzir("Vai até o jogador selecionado"),
+    Callback = function()
+        if not selectedPlayerName then return end
+        
+        local target = Players:FindFirstChild(selectedPlayerName)
+        local localChar = LocalPlayer.Character
+        if target and target.Character and localChar then
+            local targetHRP = target.Character:FindFirstChild("HumanoidRootPart")
+            local localHRP = localChar:FindFirstChild("HumanoidRootPart")
+            
+            if targetHRP and localHRP then
+                localHRP.CFrame = targetHRP.CFrame + Vector3.new(0, 3, 0)
+            end
+        end
+    end
+})
 
 Toggle:Callback(function(Value)
   flingEnabled = Value
