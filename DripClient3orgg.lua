@@ -3166,26 +3166,6 @@ Tabs.TT:AddButton({
     end
 })
 
-local Toggle = Tabs.TT:AddToggle({
-  Name = "Annoy",
-  Description = Translator:traduzir("fling jogador em 5 segundos"),
-  Default = false,
-  Callback = function(value)
-    flingEnabled = value
-    if value and selectedPlayer then
-      FlingPlayer(selectedPlayer)
-    end
-  end
-})
-
-local function ResetDoors()
-  for _, data in ipairs(ControlledDoors) do
-    if data.Align then
-      data.Align.Attachment1 = baseAttachment
-    end
-  end
-end
-
 Tabs.TT:AddButton({
     Name = Translator:traduzir("Teleportar ao Jogador"),
     Description = Translator:traduzir("Vai até o jogador selecionado"),
@@ -3203,6 +3183,26 @@ Tabs.TT:AddButton({
             end
         end
     end
+})
+
+local function ResetDoors()
+  for _, data in ipairs(ControlledDoors) do
+    if data.Align then
+      data.Align.Attachment1 = baseAttachment
+    end
+  end
+end
+
+local Toggle = Tabs.TT:AddToggle({
+  Name = "Annoy",
+  Description = Translator:traduzir("fling jogador em 5 segundos"),
+  Default = false,
+  Callback = function(value)
+    flingEnabled = value
+    if value and selectedPlayer then
+      FlingPlayer(selectedPlayer)
+    end
+  end
 })
 
 Toggle:Callback(function(Value)
@@ -5647,14 +5647,8 @@ end
     })
 
     -- House Ban Kill Function
-    local function houseBanKill()
-        if not selectedPlayerName then
-            print("Nenhum jogador selecionado!")
-            return
-        end
-
+    local function houseBanKillWithBus()
         local Player = game.Players.LocalPlayer
-        local Backpack = Player.Backpack
         local Character = Player.Character
         local Humanoid = Character:FindFirstChildOfClass("Humanoid")
         local RootPart = Character:FindFirstChild("HumanoidRootPart")
@@ -5662,154 +5656,230 @@ end
         local OldPos = RootPart.CFrame
         local Angles = 0
         local Vehicles = Workspace.Vehicles
-        local Pos
 
         local function Check()
-            if Player and Character and Humanoid and RootPart and Vehicles then
-                return true
-            else
-                return false
-            end
+            return Player and Character and Humanoid and RootPart and Vehicles
         end
 
         local selectedPlayer = game.Players:FindFirstChild(selectedPlayerName)
-        if selectedPlayer and selectedPlayer.Character then
-            if Check() then
-                local House = Houses:FindFirstChild(Player.Name .. "House")
-                if not House then
-                    local EHouse
-                    local availableHouses = {}
-                    
-                    for _, Lot in pairs(Houses:GetChildren()) do
-                        if Lot.Name == "For Sale" then
-                            for _, num in pairs(Lot:GetDescendants()) do
-                                if num:IsA("NumberValue") and num.Name == "Number" and num.Value < 25 and num.Value > 10 then
-                                    table.insert(availableHouses, {Lot = Lot, Number = num.Value})
-                                    break
-                                end
-                            end
-                        end
-                    end
+        if not selectedPlayer or not selectedPlayer.Character then return end
+        if not Check() then return end
 
-                    if #availableHouses > 0 then
-                        local randomHouse = availableHouses[math.random(1, #availableHouses)]
-                        EHouse = randomHouse.Lot
-                        local houseNumber = randomHouse.Number
-
-                        local BuyDetector = EHouse:FindFirstChild("BuyHouse")
-                        Pos = BuyDetector.Position
-                        if BuyDetector and BuyDetector:IsA("BasePart") then
-                            RootPart.CFrame = BuyDetector.CFrame + Vector3.new(0, -6, 0)
-                            task.wait(0.5)
-                            local ClickDetector = BuyDetector:FindFirstChild("ClickDetector")
-                            if ClickDetector then
-                                fireclickdetector(ClickDetector)
-                            end
-                        end
-
-                        task.wait(0.5)
-                        local args = {
-                            houseNumber,
-                            "056_House"
-                        }
-                        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Lot:BuildProperty"):FireServer(unpack(args))
-                    else
-                        print("Nenhuma casa disponivel para compra!")
-                        return
-                    end
-                end
-
-                task.wait(0.5)
-                local PreHouse = Houses:FindFirstChild(Player.Name .. "House")
-                if PreHouse then
-                    task.wait(0.5)
-                    local Number
-                    for i, x in pairs(PreHouse:GetDescendants()) do
-                        if x.Name == "Number" and x:IsA("NumberValue") then
-                            Number = x
-                        end
-                    end
-                    task.wait(0.5)
-                    game:GetService("ReplicatedStorage").RE:FindFirstChild("1Gettin1gHous1e"):FireServer("PickingCustomHouse", "049_House", Number.Value)
-                end
-
-                task.wait(0.5)
-                local PCar = Vehicles:FindFirstChild(Player.Name .. "Car")
-                if not PCar then
-                    if Check() then
-                        RootPart.CFrame = CFrame.new(1118.81, 75.998, -1138.61)
-                        task.wait(0.5)
-                        game:GetService("ReplicatedStorage").RE:FindFirstChild("1Ca1r"):FireServer("PickingCar", "SchoolBus")
-                        task.wait(0.5)
-                        PCar = Vehicles:FindFirstChild(Player.Name .. "Car")
-                        task.wait(0.5)
-                        local Seat = PCar:FindFirstChild("Body") and PCar.Body:FindFirstChild("VehicleSeat")
-                        if Seat then
-                            repeat
-                                task.wait()
-                                RootPart.CFrame = Seat.CFrame * CFrame.new(0, math.random(-1, 1), 0)
-                            until Humanoid.Sit
-                        end
-                    end
-                end
-
-                task.wait(0.5)
-                PCar = Vehicles:FindFirstChild(Player.Name .. "Car")
-                if PCar then
-                    if not Humanoid.Sit then
-                        local Seat = PCar:FindFirstChild("Body") and PCar.Body:FindFirstChild("VehicleSeat")
-                        if Seat then
-                            repeat
-                                task.wait()
-                                RootPart.CFrame = Seat.CFrame * CFrame.new(0, math.random(-1, 1), 0)
-                            until Humanoid.Sit
-                        end
-                    end
-
-                    local Target = selectedPlayer
-                    local TargetC = Target.Character
-                    local TargetH = TargetC:FindFirstChildOfClass("Humanoid")
-                    local TargetRP = TargetC:FindFirstChild("HumanoidRootPart")
-                    if TargetC and TargetH and TargetRP then
-                        if not TargetH.Sit then
-                            while not TargetH.Sit do
-                                task.wait()
-                                local Fling = function(alvo, pos, angulo)
-                                    PCar:SetPrimaryPartCFrame(CFrame.new(alvo.Position) * pos * angulo)
-                                end
-                                Angles = Angles + 100
-                                Fling(TargetRP, CFrame.new(0, 1.5, 0) + TargetH.MoveDirection * TargetRP.Velocity.Magnitude / 1.10, CFrame.Angles(math.rad(Angles), 0, 0))
-                                Fling(TargetRP, CFrame.new(0, -1.5, 0) + TargetH.MoveDirection * TargetRP.Velocity.Magnitude / 1.10, CFrame.Angles(math.rad(Angles), 0, 0))
-                                Fling(TargetRP, CFrame.new(2.25, 1.5, -2.25) + TargetH.MoveDirection * TargetRP.Velocity.Magnitude / 1.10, CFrame.Angles(math.rad(Angles), 0, 0))
-                                Fling(TargetRP, CFrame.new(-2.25, -1.5, 2.25) + TargetH.MoveDirection * TargetRP.Velocity.Magnitude / 1.10, CFrame.Angles(math.rad(Angles), 0, 0))
-                                Fling(TargetRP, CFrame.new(0, 1.5, 0) + TargetH.MoveDirection * TargetRP.Velocity.Magnitude / 1.10, CFrame.Angles(math.rad(Angles), 0, 0))
-                                Fling(TargetRP, CFrame.new(0, -1.5, 0) + TargetH.MoveDirection * TargetRP.Velocity.Magnitude / 1.10, CFrame.Angles(math.rad(Angles), 0, 0))
-                            end
-                            task.wait(0.2)
-                            local House = Houses:FindFirstChild(Player.Name .. "House")
-                            PCar:SetPrimaryPartCFrame(CFrame.new(House.HouseSpawnPosition.Position))
-                            task.wait(0.2)
-                            local pedro = Region3.new(game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(30, 30, 30), game.Players.LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(30, 30, 30))
-                            local a = workspace:FindPartsInRegion3(pedro, game.Players.LocalPlayer.Character.HumanoidRootPart, math.huge)
-                            for i, v in pairs(a) do
-                                if v.Name == "HumanoidRootPart" then
-                                    local b = game:GetService("Players"):FindFirstChild(v.Parent.Name)
-                                    local args = {
-                                        [1] = "BanPlayerFromHouse",
-                                        [2] = b,
-                                        [3] = v.Parent
-                                    }
-                                    game:GetService("ReplicatedStorage").RE:FindFirstChild("1Playe1rTrigge1rEven1t"):FireServer(unpack(args))
-                                    local args = {
-                                        [1] = "DeleteAllVehicles"
-                                    }
-                                    game:GetService("ReplicatedStorage").RE:FindFirstChild("1Ca1r"):FireServer(unpack(args))
-                                end
-                            end
+        -- Comprar casa se necessario
+        local House = Houses:FindFirstChild(Player.Name .. "House")
+        if not House then
+            local availableHouses = {}
+            for _, Lot in pairs(Houses:GetChildren()) do
+                if Lot.Name == "For Sale" then
+                    for _, num in pairs(Lot:GetDescendants()) do
+                        if num:IsA("NumberValue") and num.Name == "Number" and num.Value < 25 and num.Value > 10 then
+                            table.insert(availableHouses, {Lot = Lot, Number = num.Value})
+                            break
                         end
                     end
                 end
             end
+            if #availableHouses > 0 then
+                local randomHouse = availableHouses[math.random(1, #availableHouses)]
+                local BuyDetector = randomHouse.Lot:FindFirstChild("BuyHouse")
+                if BuyDetector and BuyDetector:IsA("BasePart") then
+                    RootPart.CFrame = BuyDetector.CFrame + Vector3.new(0, -6, 0)
+                    task.wait(0.5)
+                    local ClickDetector = BuyDetector:FindFirstChild("ClickDetector")
+                    if ClickDetector then fireclickdetector(ClickDetector) end
+                end
+                task.wait(0.5)
+                game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Lot:BuildProperty"):FireServer(randomHouse.Number, "056_House")
+            else
+                print("Nenhuma casa disponivel!")
+                return
+            end
+        end
+
+        task.wait(0.5)
+        local PreHouse = Houses:FindFirstChild(Player.Name .. "House")
+        if PreHouse then
+            local Number
+            for _, x in pairs(PreHouse:GetDescendants()) do
+                if x.Name == "Number" and x:IsA("NumberValue") then
+                    Number = x
+                    break
+                end
+            end
+            if Number then
+                game:GetService("ReplicatedStorage").RE:FindFirstChild("1Gettin1gHous1e"):FireServer("PickingCustomHouse", "049_House", Number.Value)
+            end
+        end
+
+        task.wait(0.5)
+        local PCar = Vehicles:FindFirstChild(Player.Name .. "Car")
+        if not PCar then
+            RootPart.CFrame = CFrame.new(1118.81, 75.998, -1138.61)
+            task.wait(0.5)
+            game:GetService("ReplicatedStorage").RE:FindFirstChild("1Ca1r"):FireServer("PickingCar", "SchoolBus")
+            task.wait(1)
+            PCar = Vehicles:FindFirstChild(Player.Name .. "Car")
+        end
+
+        if PCar then
+            local Seat = PCar:FindFirstChild("Body") and PCar.Body:FindFirstChild("VehicleSeat")
+            if Seat and not Humanoid.Sit then
+                repeat
+                    task.wait()
+                    RootPart.CFrame = Seat.CFrame * CFrame.new(0, math.random(-1, 1), 0)
+                until Humanoid.Sit
+            end
+
+            local Target = selectedPlayer
+            local TargetC = Target.Character
+            local TargetH = TargetC:FindFirstChildOfClass("Humanoid")
+            local TargetRP = TargetC:FindFirstChild("HumanoidRootPart")
+            if TargetC and TargetH and TargetRP and not TargetH.Sit then
+                while not TargetH.Sit do
+                    task.wait()
+                    Angles = Angles + 100
+                    PCar:SetPrimaryPartCFrame(CFrame.new(TargetRP.Position) * CFrame.new(0, 1.5, 0) * CFrame.Angles(math.rad(Angles), 0, 0))
+                    PCar:SetPrimaryPartCFrame(CFrame.new(TargetRP.Position) * CFrame.new(0, -1.5, 0) * CFrame.Angles(math.rad(Angles), 0, 0))
+                end
+                task.wait(0.2)
+                local MyHouse = Houses:FindFirstChild(Player.Name .. "House")
+                if MyHouse and MyHouse:FindFirstChild("HouseSpawnPosition") then
+                    PCar:SetPrimaryPartCFrame(CFrame.new(MyHouse.HouseSpawnPosition.Position))
+                end
+                task.wait(0.5)
+                -- Ban player da casa
+                local args = {
+                    [1] = "BanPlayerFromHouse",
+                    [2] = Target,
+                    [3] = TargetC
+                }
+                game:GetService("ReplicatedStorage").RE:FindFirstChild("1Playe1rTrigge1rEven1t"):FireServer(unpack(args))
+                game:GetService("ReplicatedStorage").RE:FindFirstChild("1Ca1r"):FireServer("DeleteAllVehicles")
+            end
+        end
+    end
+
+    local function houseBanKillWithCouch()
+        local Player = game.Players.LocalPlayer
+        local Character = Player.Character
+        local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+        local RootPart = Character:FindFirstChild("HumanoidRootPart")
+        local Houses = game.Workspace:FindFirstChild("001_Lots")
+        local OldPos = RootPart.CFrame
+
+        local selectedPlayer = game.Players:FindFirstChild(selectedPlayerName)
+        if not selectedPlayer or not selectedPlayer.Character then return end
+
+        -- Comprar casa se necessario
+        local House = Houses:FindFirstChild(Player.Name .. "House")
+        if not House then
+            local availableHouses = {}
+            for _, Lot in pairs(Houses:GetChildren()) do
+                if Lot.Name == "For Sale" then
+                    for _, num in pairs(Lot:GetDescendants()) do
+                        if num:IsA("NumberValue") and num.Name == "Number" and num.Value < 25 and num.Value > 10 then
+                            table.insert(availableHouses, {Lot = Lot, Number = num.Value})
+                            break
+                        end
+                    end
+                end
+            end
+            if #availableHouses > 0 then
+                local randomHouse = availableHouses[math.random(1, #availableHouses)]
+                local BuyDetector = randomHouse.Lot:FindFirstChild("BuyHouse")
+                if BuyDetector and BuyDetector:IsA("BasePart") then
+                    RootPart.CFrame = BuyDetector.CFrame + Vector3.new(0, -6, 0)
+                    task.wait(0.5)
+                    local ClickDetector = BuyDetector:FindFirstChild("ClickDetector")
+                    if ClickDetector then fireclickdetector(ClickDetector) end
+                end
+                task.wait(0.5)
+                game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Lot:BuildProperty"):FireServer(randomHouse.Number, "056_House")
+            else
+                print("Nenhuma casa disponivel!")
+                return
+            end
+        end
+
+        task.wait(0.5)
+        local PreHouse = Houses:FindFirstChild(Player.Name .. "House")
+        if PreHouse then
+            local Number
+            for _, x in pairs(PreHouse:GetDescendants()) do
+                if x.Name == "Number" and x:IsA("NumberValue") then
+                    Number = x
+                    break
+                end
+            end
+            if Number then
+                game:GetService("ReplicatedStorage").RE:FindFirstChild("1Gettin1gHous1e"):FireServer("PickingCustomHouse", "049_House", Number.Value)
+            end
+        end
+
+        -- Usar Couch para puxar o player
+        ReplicatedStorage:WaitForChild("RE"):WaitForChild("1Clea1rTool1s"):FireServer("ClearAllTools")
+        task.wait(0.2)
+        ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer("PickingTools", "Couch")
+        task.wait(0.3)
+
+        local couch = Player.Backpack:FindFirstChild("Couch")
+        if couch then couch.Parent = Character end
+        task.wait(0.1)
+        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.F, false, game)
+        task.wait(0.1)
+
+        local tRoot = selectedPlayer.Character:FindFirstChild("HumanoidRootPart")
+        local tHum = selectedPlayer.Character:FindFirstChildOfClass("Humanoid")
+        
+        Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
+        
+        local align = Instance.new("BodyPosition")
+        align.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        align.D = 10
+        align.P = 30000
+        align.Position = RootPart.Position
+        align.Parent = tRoot
+
+        local angle = 0
+        local startTime = tick()
+        while tick() - startTime < 5 and selectedPlayer.Character and tHum and not tHum.Sit do
+            local adjustedPos = tRoot.Position + (tRoot.Velocity / 1.5)
+            angle = angle + 50
+            RootPart.CFrame = CFrame.new(adjustedPos + Vector3.new(0, 2, 0)) * CFrame.Angles(math.rad(angle), 0, 0)
+            align.Position = RootPart.Position + Vector3.new(2, 0, 0)
+            task.wait()
+        end
+
+        align:Destroy()
+        Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+
+        -- Levar para a casa
+        local MyHouse = Houses:FindFirstChild(Player.Name .. "House")
+        if MyHouse and MyHouse:FindFirstChild("HouseSpawnPosition") then
+            RootPart.CFrame = CFrame.new(MyHouse.HouseSpawnPosition.Position)
+        end
+        task.wait(0.5)
+
+        -- Ban player da casa
+        local args = {
+            [1] = "BanPlayerFromHouse",
+            [2] = selectedPlayer,
+            [3] = selectedPlayer.Character
+        }
+        game:GetService("ReplicatedStorage").RE:FindFirstChild("1Playe1rTrigge1rEven1t"):FireServer(unpack(args))
+        ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer("PickingTools", "Couch")
+        RootPart.CFrame = OldPos
+    end
+
+    local function houseBanKill()
+        if not selectedPlayerName then
+            print("Nenhum jogador selecionado!")
+            return
+        end
+        if methodKill == "Couch" or methodKill == "Couch de longe" then
+            houseBanKillWithCouch()
+        else
+            houseBanKillWithBus()
         end
     end
 
@@ -5899,8 +5969,7 @@ Tabs.TT:AddButton({
                 BringPlayerLLL()
             elseif methodKill == "Couch de longe" then
                 BringWithCouch()
-            else
-                
+            elseif methodKill == "Bus" then
                 local character = LocalPlayer.Character
                 local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
                 if not humanoidRootPart then
@@ -5981,9 +6050,11 @@ Tabs.TT:AddButton({
             end
             if methodKill == "Couch" then
                 KillPlayerCouch()
-            elseif methodKill == "Couch Sem ir até o alvo [BETA]" then
+            elseif methodKill == "Couch de longe" then
                 KillWithCouch()
-            else
+            elseif methodKill == "jail" then
+                jailcouch()
+            elseif methodKill == "Bus" then
                 
                 local character = LocalPlayer.Character
                 local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
@@ -10416,18 +10487,22 @@ Tabs.HouseTab:AddToggle({
 local Toggle = Tabs.HouseTab:AddToggle({Name = Translator:traduzir("Atravessar Porta <Casa>"), Description = Translator:traduzir("Auto Atravessar a porta da casa entre sem perm"), Default = false})
 
 Toggle:Callback(function(Value)
-        local House = workspace["001_Lots"]:FindFirstChild(tostring(selectedHouseNumber))
-                if House and House:FindFirstChild("HousePickedByPlayer") then
-                    local housepickedbyplayer = House.HousePickedByPlayer
-                    local doors = housepickedbyplayer.HouseModel:FindFirstChild("001_HouseDoors")
-                    if doors and doors:FindFirstChild("HouseDoorFront") then
-                        for _, Base in ipairs(doors.HouseDoorFront:GetChildren()) do
-                            if Base:IsA("BasePart") then
-                                Base.CanCollide = not Value
-                            end
-                        end
+        if not selectedHouseNumber then
+            warn("Selecione uma casa primeiro!")
+            return
+        end
+        local House = workspace["001_Lots"]:FindFirstChild(selectedHouseNumber)
+        if House and House:FindFirstChild("HousePickedByPlayer") then
+            local housepickedbyplayer = House.HousePickedByPlayer
+            local doors = housepickedbyplayer.HouseModel:FindFirstChild("001_HouseDoors")
+            if doors and doors:FindFirstChild("HouseDoorFront") then
+                for _, Base in ipairs(doors.HouseDoorFront:GetChildren()) do
+                    if Base:IsA("BasePart") then
+                        Base.CanCollide = not Value
                     end
                 end
+            end
+        end
 end)
 Tabs.HouseTab:AddSection({Translator:traduzir("Casa Assombrada")})
 local RemoteEvent = ReplicatedStorage.RE:FindFirstChild("1Player1sHous1e")
@@ -10898,7 +10973,6 @@ local Dropdown = Tabs.Carros:AddDropdown({
 	Callback = function(Value)
 		selectedMusicId = MusicIds[Value]
 		selectedFromList = true
-		tocarMusica(selectedMusicId)
 	end
 })
 
